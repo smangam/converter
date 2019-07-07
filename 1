@@ -28,6 +28,7 @@ def user_input
     $input_value=$input_value.to_f
     $output_value=$output_value.to_f
   else
+    #puts "invalid. Input/Output values should be numbers."
     puts "invalid"
     exit
   end
@@ -36,7 +37,7 @@ def user_input
   if $input_unit =~ /^k|^c|^f|^r|^l|^t|^cubic-i|^cup|^cubic-f|^g/
      if $input_unit =~ /^k|^c|^f|^r/ 
        unless $output_unit =~ /^k|^c|^f|^r/
-         puts "invalid. Input and Output units must be one of the folllowing: "+$temp.join(',')
+         puts "invald. Input and Output units must be one of the folllowing: "+$temp.join(',')
          exit
        end
        rankine_value = convert_to_rankine($input_unit,$input_value)
@@ -53,6 +54,8 @@ def user_input
      end
   else
     puts "invalid. #{$input_unit} is not a valid unit"
+    puts "Temperature units must be one for the following: "+$temp.join(',')
+    puts "Volume units must be one of the following: "+$vol.join(',')
     exit
   end
 end
@@ -66,6 +69,40 @@ def check_results(output_value, correct_value)
   puts $result
 end
 
+def temperature_converter
+  loop do
+    print  "Enter Source Temperature Unit (K,C,F,R):"
+    $source_unit=gets.chomp.upcase
+    if  $source_unit =~/[KCFR]/
+      break
+    else
+      puts "Temperature unit should be K,C,F, or R. Please try again..."
+    end
+  end
+
+  loop do
+    print "Enter Source Temperature Value:"
+    $i=gets.chomp
+    if $i =~ /^[.0-9]+$/ && $i.to_i > 0
+      $i=$i.to_f
+      break
+    else
+      puts "Temperature value should be a number. Please try again..."
+    end
+  end
+
+  loop do
+    print  "Enter target temperature unit (K,C,F,R):"
+    $target_unit=gets.chomp.upcase
+    if  $target_unit =~/[KCFR]/
+      break
+    else
+      puts "Temperature unit should be K,C,F, or R. Please try again..."
+    end
+  end
+end
+
+# convert user input to rankine
 def convert_to_rankine(input_unit,t)
   if input_unit =~ /^k/
     t * (1.8)
@@ -120,6 +157,29 @@ def convert_from_liter(output_unit,i)
   elsif output_unit =~ /^g/
     (i * 0.2641720523581484 )
   end
+end
+
+def menu
+loop do
+  print "Make a Selection:
+  (1) Convert Temperatures
+  (2) Convert Volumes
+  (3) Exit
+  Enter Choice:"
+  choice=gets.chomp
+
+  if choice=="1"
+    temperature_converter
+    rankine_value = convert_to_rankine($source_unit,$i)
+    puts "rankine value is #{rankine_value}"
+    puts convert_from_rankine($target_unit,rankine_value)
+  elsif choice=="2"
+    volume_converter
+  elsif choice=="3"
+    puts "exiting..."
+    exit
+  end
+end
 end
 
 # main program
