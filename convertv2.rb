@@ -24,7 +24,8 @@ def user_input
   end
 
   #check for only numeric values for ARGV[0] and ARGV[3]
-  if ( $input_value =~ /^[.0-9]+$/ && $input_value.to_i > 0 ) && ($output_value =~ /^[.0-9]+$/ && $output_value.to_i > 0 )
+  if $input_value.is_a? Numeric && $output_value.is_a? Numeric
+  #if ( $input_value =~ /^[-]?[.0-9]+$/ && $input_value.to_i > 0 ) && ($output_value =~ /^[-]?[.0-9]+$/ && $output_value.to_i > 0 )
     $input_value=$input_value.to_f
     $output_value=$output_value.to_f
   else
@@ -39,6 +40,12 @@ def user_input
          puts "Input and Output units must be one of the folllowing: "+$temp.join(',')
          exit
        end
+       puts "running"
+       rankine_value = convert_to_rankine($input_unit,$input_value)
+       puts rankine_value
+       correct_value = convert_from_rankine($output_unit,rankine_value)
+       puts correct_value
+       check_results($output_value,correct_value)
      elsif $input_unit =~ /^l|^t|^cubic-i|^cup|^cubic-f|^g/ 
        unless $output_unit =~ /^l|^t|^cubic-i|^cup|^cubic-f|^g/
          puts "Input and Output units must be one of the folllowing: "+$vol.join(',')
@@ -51,6 +58,15 @@ def user_input
     puts "Volume units must be one of the following: "+$vol.join(',')
     exit
   end
+end
+
+def check_results(output_value, correct_value)
+  if output_value == correct_value
+   $result="correct"
+  else
+   $result="incorrect"
+  end
+  puts $result
 end
 
 def temperature_converter
@@ -87,30 +103,28 @@ def temperature_converter
 end
 
 # first convert user input to rankine
-def convert_to_rankine(source_unit,i)
-  if source_unit=='K'
-   rankine_value = i * (1.8)
-   puts rankine_value
-  elsif source_unit=='C'
-   rankine_value = (i * 1.8) + 32 + 459.67
-  elsif source_unit=='F'
-   rankine_value = i + 459.67
-  elsif source_unit=='R'
-   rankine_value = i
+def convert_to_rankine(input_unit,t)
+  if input_unit =~ /^k/
+    t * (1.8)
+  elsif input_unit =~ /^c/
+    (t * 1.8) + 32 + 459.67
+  elsif input_unit =~ /^f/
+    t + 459.67
+  elsif input_unit =~ /^r/
+    t
   end
-  rankine_value
 end
 
 
-def convert_from_rankine(target_unit,i)
-  if target_unit=='K'
-   i * (5.0 / 9.0)
-  elsif target_unit=='C'
-   (i - 491.67) * (5.0 /9.0)
-  elsif target_unit=='F'
-   i - 459.67
-  elsif target_unit=='R'
-   i
+def convert_from_rankine(output_unit,t)
+  if output_unit =~/^k/
+    t * (5.0 / 9.0)
+  elsif output_unit =~ /^c/
+    (t - 491.67) * (5.0 /9.0)
+  elsif output_unit =~ /^f/
+    t - 459.67
+  elsif output_unit =~ /^r/
+    t
   end
 end
 
